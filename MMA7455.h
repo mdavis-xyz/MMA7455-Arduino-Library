@@ -1,12 +1,12 @@
 // MMA7455 Accelerometer
 // ---------------------
 //
-// By arduino.cc user "Krodal".
+// Based on code by arduino.cc user "Krodal".
 // May 2012
 // http://playground.arduino.cc/Main/MMA7455
-// Then furthered by Matthew Davis
+// Then modified by Matthew Davis
 // December 2015
-// Open Source / Public Domain
+//
 //
 // Fixes to union and type conversions by Arduino.cc user "Afroviking"
 // August 2014
