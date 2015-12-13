@@ -1,6 +1,6 @@
 # MMA7455-Arduino-Library
 
-This is a library for using the [MMA7455 accelerometer](http://playground.arduino.cc/Main/MMA7455) with and Arduino, through I<sup>2</sup>C.
+This is a library for using the [MMA7455 accelerometer ](http://playground.arduino.cc/Main/MMA7455) (a.k.a *tilt sensor*) with and Arduino, through I<sup>2</sup>C.
 
 ![MMA7455 Image - from above](http://imgur.com/0RAcA57.jpg)
 
