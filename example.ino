@@ -9,34 +9,28 @@
 // Wiring:
 // Connect GND to GND, and VCC (on the sensor) to 5V (on the Arduino)
 // Connect CS to VCC = 5V
-// Connect SCL on the sensor to A5 on the Uno 
+// Connect SCL on the sensor to A5 on the Uno
 // Connect SDA on the sensor to A4 on the Uno
-
-
+//
 // this example code works out which way the device is pointing
 // and prints it through serial
 //
-// it assumes the device starts horizontal (the device callibrates itself in the setup phase)
-// then during the loop phase, it assumes the device is vertical
+// it assumes the device starts horizontal (the device callibrates itself
+// in the setup phase). Change FIRST_ORIENTATION to change that.
+//
+//
 
-//when stationary, the device will measure 1 g-force in the 'up' direction
 
 #include <Wire.h>
 #include "MMA7455.h"
 
+//this is the orientation it starts in
+// for callibration purposes
+#define FIRST_ORIENTATION Y_NEG
 
-// the device looks for which direction has this much force
-#define THRESH 0.8 //g-force
-
-typedef enum {Y_POS, Y_NEG, X_POS, X_NEG, Z_POS, Z_NEG, NOT_SURE} orientation;
-
-orientation previous_orientation = Z_POS;
-
-orientation getOrientation(void);
+orientation previous_orientation = FIRST_ORIENTATION;
 
 void sendNewOrientation(orientation next_orientation);
-
-
 
 void setup()
 {
@@ -52,7 +46,8 @@ void setup()
 
 
     // Initialize the MMA7455, and set the offset.
-    error = MMA7455_init(Z); // assuming it starts horizontal
+    error = MMA7455_init(FIRST_ORIENTATION);
+
     if (error == 0){
         Serial.println("The MMA7455 is okay");
     }else{
@@ -69,13 +64,15 @@ void setup()
     Serial.print("WHOAMI : ");
     Serial.println(c,HEX);
 
+    Serial.print("Assuming the device is ");
+    sendNewOrientation(FIRST_ORIENTATION);
 }
 
 
 
 void loop()
 {
-    orientation next_orientation = getOrientation();
+    orientation next_orientation = MMA7455_orientation();
     if((next_orientation != previous_orientation) &&
        (next_orientation != NOT_SURE)){
         previous_orientation = next_orientation;
@@ -84,40 +81,6 @@ void loop()
     }
     delay(200);
 }
-
-orientation getOrientation(void){
-    uint16_t x,y,z, error;
-    double dX,dY,dZ;
-
-    // The function MMA7455_xyz returns the 'g'-force
-    // as an integer in 64 per 'g'.
-
-    // set x,y,z to zero (they are not written in case of an error).
-    x = y = z = 0;
-    error = MMA7455_xyz(&x, &y, &z); // get the accelerometer values.
-    //
-    dX = ((int16_t) x) / ((double) MMA7455_ONE_G); // calculate the 'g' values.
-    dY = ((int16_t) y) / ((double) MMA7455_ONE_G);
-    dZ = ((int16_t) z) / ((double) MMA7455_ONE_G);
-
-    // ignore z value
-    if(dX > THRESH){
-        return X_POS;
-    }else if(dX <  - THRESH){
-        return X_NEG;
-    }else if(dY > THRESH){
-        return Y_POS;
-    }else if(dY <  - THRESH){
-        return Y_NEG;
-    }else if(dZ > THRESH){
-        return Z_POS;
-    }else if(dZ <  - THRESH){
-        return Z_NEG;
-    }else{
-        return NOT_SURE;
-    }
-}
-
 
 void sendNewOrientation(orientation next_orientation){
     char * dir;
